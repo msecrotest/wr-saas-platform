@@ -1,65 +1,81 @@
-import Image from "next/image";
+'use client'
+import { useStore } from '@/lib/store'
+import { useRouter } from 'next/navigation'
+import { UserRole } from '@/lib/types'
+import { Building2, TrendingUp, Landmark } from 'lucide-react'
+
+const roles: { role: UserRole; label: string; desc: string; icon: React.ReactNode; color: string }[] = [
+  {
+    role: 'WAREHOUSE_OPERATOR',
+    label: 'Warehouse Operator',
+    desc: 'Issue and manage digital warehouse receipts for stored commodities',
+    icon: <Building2 className="w-8 h-8" />,
+    color: 'border-orange-200 hover:border-orange-400 hover:bg-orange-50',
+  },
+  {
+    role: 'TRADER',
+    label: 'Commodity Trader',
+    desc: 'View your WR portfolio, transfer receipts, and pledge as collateral',
+    icon: <TrendingUp className="w-8 h-8" />,
+    color: 'border-blue-200 hover:border-blue-400 hover:bg-blue-50',
+  },
+  {
+    role: 'BANK_OFFICER',
+    label: 'Bank Credit Officer',
+    desc: 'Review pledge requests, approve collateral, and manage loans',
+    icon: <Landmark className="w-8 h-8" />,
+    color: 'border-purple-200 hover:border-purple-400 hover:bg-purple-50',
+  },
+]
 
 export default function Home() {
+  const { setRole } = useStore()
+  const router = useRouter()
+
+  const handleSelect = (role: UserRole) => {
+    setRole(role)
+    if (role === 'WAREHOUSE_OPERATOR') router.push('/dashboard/warehouse')
+    else if (role === 'TRADER') router.push('/dashboard/trader')
+    else router.push('/dashboard/bank')
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8">
+      <div className="max-w-3xl w-full">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-sm text-gray-500 mb-4">
+            <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+            Iteration 1 — Digital Foundation
+          </div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">WR Platform</h1>
+          <p className="text-lg text-gray-500">
+            Digital Warehouse Receipt Management
           </p>
+          <p className="text-sm text-gray-400 mt-2">Select your role to continue</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Role Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {roles.map(({ role, label, desc, icon, color }) => (
+            <button
+              key={role}
+              onClick={() => handleSelect(role)}
+              className={`bg-white border-2 rounded-xl p-6 text-left transition-all cursor-pointer ${color} group`}
+            >
+              <div className="text-gray-400 group-hover:text-gray-700 mb-4 transition-colors">
+                {icon}
+              </div>
+              <h2 className="font-semibold text-gray-900 mb-2">{label}</h2>
+              <p className="text-sm text-gray-500">{desc}</p>
+            </button>
+          ))}
         </div>
-      </main>
-    </div>
-  );
+
+        <p className="text-center text-xs text-gray-400 mt-8">
+          Demo mode — no authentication required. Using in-memory seed data.
+        </p>
+      </div>
+    </main>
+  )
 }
