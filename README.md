@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WR SaaS Platform
+
+> Digital Warehouse Receipt management — connecting warehouses, traders, and banks.
+
+## Overview
+
+A multi-sided SaaS platform that digitizes the warehouse receipt (WR) workflow across three roles:
+
+- **Warehouse Operators** — issue and manage digital warehouse receipts
+- **Commodity Traders** — hold, transfer, and pledge receipts as collateral
+- **Bank Credit Officers** — receive pledged receipts, confirm collateral, manage loans
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 14 (App Router, TypeScript) |
+| Styling | Tailwind CSS + Radix UI |
+| Database | PostgreSQL + Prisma ORM |
+| Auth | Clerk |
+| Validation | Zod |
+| State | TanStack React Query |
+| Email | Resend |
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.local.example .env.local
+# Fill in DATABASE_URL, Clerk keys, Resend key
+
+# Set up database
+npx prisma migrate dev --name init
+
+# Start dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/
+│   ├── (auth)/          # Sign in / sign up pages
+│   ├── dashboard/
+│   │   ├── trader/      # Trader WR portfolio + pledge actions
+│   │   ├── warehouse/   # Warehouse operator: issue + manage WRs
+│   │   └── bank/        # Bank officer: pledge queue + approvals
+│   └── api/
+│       ├── wr/          # Warehouse receipt API routes
+│       └── pledge/      # Pledge lifecycle API routes
+├── components/          # Shared UI components
+├── lib/                 # Prisma client, utilities
+└── types/               # TypeScript types
+prisma/
+└── schema.prisma        # Data model
+```
 
-## Learn More
+## Iteration Roadmap
 
-To learn more about Next.js, take a look at the following resources:
+- **Iter 1** ✅ Digital WR issuance + trader portfolio
+- **Iter 2** 🚧 Bank pledge + financing flow ← _current_
+- **Iter 3** Compliance, audit export, KYB, API access
+- **Stretch** Blockchain anchoring, secondary market
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Domain Research
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+See [`docs/`](./docs/) for the full whitepaper and user story documents.
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT

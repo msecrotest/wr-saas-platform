@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  clerkId       String   @unique
+  email         String   @unique
+  name          String
+  role          UserRole
+  orgName       String?
+  createdAt     DateTime @default(now())
+
+  warehouseReceipts WarehouseReceipt[]
+  traderPledges     Pledge[]           @relation("TraderPledges")
+  bankPledges       Pledge[]           @relation("BankPledges")
+}
+
+enum UserRole {
+  WAREHOUSE_OPERATOR
+  TRADER
+  BANK_OFFICER
+  ADMIN
+}
+
+model Warehouse {
+  id       String @id @default(cuid())
+  name     String
+  location String
+  license  String @unique
+  receipts WarehouseReceipt[]
+}
+
+model WarehouseReceipt {
+  id            String    @id @default(cuid())
+  receiptNumber String    @unique
+  commodity     String
+  quantity      Float
+  unit          String
+  grade         String?
+  location      String
+  warehouseId   String
+  holderId      String
+  status        WRStatus  @default(ACTIVE)
+  issuedAt      DateTime  @default(now())
+  expiresAt     DateTime?
+
+  warehouse  Warehouse @relation(fields: [warehouseId], references: [id])
+  holder     User      @relation(fields: [holderId], references: [id])
+  pledges    Pledge[]
+  auditLogs  AuditLog[]
+}
+
+enum WRStatus {
+  ACTIVE
+  PLEDGED
+  TRANSFERRED
+  CANCELLED
+  EXPIRED
+}
+
+model Pledge {
+  id              String       @id @default(cuid())
+  wrId            String
+  traderId        String
+  bankId          String
+  amountRequested Float
+  currency        String       @default("USD")
+  status          PledgeStatus @default(PENDING)
+  notes           String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  disbursedAt     DateTime?
+  repaidAt        DateTime?
+  releasedAt      DateTime?
+
+  wr        WarehouseReceipt @relation(fields: [wrId], references: [id])
+  trader    User             @relation("TraderPledges", fields: [traderId], references: [id])
+  bank      User             @relation("BankPledges", fields: [bankId], references: [id])
+  auditLogs AuditLog[]
+}
+
+enum PledgeStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  DISBURSED
+  REPAID
+  RELEASED
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  wrId      String?
+  pledgeId  String?
+  actorId   String
+  action    String
+  detail    String?
+  createdAt DateTime @default(now())
+
+  wr     WarehouseReceipt? @relation(fields: [wrId], references: [id])
+  pledge Pledge?           @relation(fields: [pledgeId], references: [id])
+}
